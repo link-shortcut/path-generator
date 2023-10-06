@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: path-generator
+
+  cloud:
+    zookeeper:
+      connect-string: localhost:2181
+      session-timeout: 2000
+      discovery:
+        enabled: false
+
+  logging:
+    level:
+      org.apache.zookeeper.ClientCnxn: WARN
+
+
+path-generator:
+  type: shuffle
+  gap: 100000
