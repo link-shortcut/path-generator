@@ -21,7 +21,7 @@ public class ShufflePathInitializationHelper {
 
     public void initializePathGenerator() throws UnsupportedEncodingException, InterruptedException, KeeperException {
         int gap = pathGenerator.getGap();
-        long offset = zookeeperService.increaseOffset(gap);
+        long offset = zookeeperService.increaseOffsetWithRetry(gap);
         pathGenerator.initialize(offset);
         log.info("Shuffle path generator is initialized");
     }

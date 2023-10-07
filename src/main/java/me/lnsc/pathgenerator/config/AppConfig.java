@@ -27,7 +27,7 @@ public class AppConfig {
     @Bean
     @ConditionalOnProperty(prefix = "path-generator", name = "type", havingValue = "shuffle")
     public PathGenerator pathGenerator(@Value("${path-generator.gap:100000}") int gap, ZookeeperService zookeeperService) throws UnsupportedEncodingException, InterruptedException, KeeperException {
-        long offset = zookeeperService.increaseOffset(gap);
+        long offset = zookeeperService.increaseOffsetWithRetry(gap);
         return new ShuffleRandomPathGenerator(offset, gap);
     }
 

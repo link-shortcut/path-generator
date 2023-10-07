@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 public class ZookeeperService {
     private static final Logger log = LoggerFactory.getLogger(ZookeeperService.class);
     private static final String OFFSET_PATH = "/offset";
+    private static final int DEFAULT_RETRY_COUNT = 3;
 
     private final ZooKeeperManager zooKeeperManager;
 
@@ -24,12 +25,33 @@ public class ZookeeperService {
         Object data = null;
         try {
             data = zooKeeperManager.getZNodeData(OFFSET_PATH, false);
-        } catch (KeeperException e) {
+        } catch (KeeperException.NoNodeException e) {
             log.info("{}", e);
             log.info("Offset not exist in {} path. Proceed offset initialization", OFFSET_PATH);
             initOffset();
         }
         return Long.parseLong((String) data);
+    }
+
+    public long increaseOffsetWithRetry(int gap) throws UnsupportedEncodingException, InterruptedException, KeeperException {
+        return increaseOffsetWithRetry(gap, DEFAULT_RETRY_COUNT);
+    }
+
+    public long increaseOffsetWithRetry(int gap, int failRetry) throws UnsupportedEncodingException, InterruptedException, KeeperException {
+        int retryCount = 0;
+        while (retryCount < failRetry) {
+            try {
+                return increaseOffset(gap);
+            } catch (KeeperException.BadVersionException e) {
+                retryCount++;
+                log.info("Increase offset try {}", retryCount, e);
+                if (retryCount == failRetry) {
+                    log.info("Failed all {} trys.", failRetry);
+                    throw e;
+                }
+            }
+        }
+        return -1;
     }
 
     public long increaseOffset(int gap) throws UnsupportedEncodingException, InterruptedException, KeeperException {
