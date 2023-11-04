@@ -1,6 +1,7 @@
 package me.lnsc.pathgenerator.config;
 
 import me.lnsc.pathgenerator.domain.PathGenerator;
+import me.lnsc.pathgenerator.domain.RandomPathGenerator;
 import me.lnsc.pathgenerator.domain.ShuffleRandomPathGenerator;
 import me.lnsc.pathgenerator.helper.ShufflePathInitializationHelper;
 import me.lnsc.pathgenerator.service.ZookeeperService;
@@ -10,6 +11,7 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.zookeeper.ZookeeperProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,5 +41,12 @@ public class AppConfig {
     @ConditionalOnProperty(prefix = "path-generator", name = "type", havingValue = "shuffle")
     public ShufflePathInitializationHelper shufflePathInitializationHelper(ZookeeperService zookeeperService, PathGenerator pathGenerator) {
         return new ShufflePathInitializationHelper(zookeeperService, (ShuffleRandomPathGenerator) pathGenerator);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PathGenerator randomPathGenerator() {
+        log.info("RandomPathGenerator has been registered as PathGenerator.");
+        return new RandomPathGenerator();
     }
 }
