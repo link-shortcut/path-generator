@@ -2,6 +2,7 @@ package me.lnsc.pathgenerator.service;
 
 import me.lnsc.pathgenerator.domain.ShuffleRandomPathGenerator;
 import me.lnsc.pathgenerator.zookeeper.ZooKeeperManager;
+import me.lnsc.pathgenerator.zookeeper.ZooKeeperManagerImpl;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ public class ZookeeperService {
     }
 
     public long increaseOffset(int gap) throws UnsupportedEncodingException, InterruptedException, KeeperException {
+        String lockNode = ZooKeeperManagerImpl.ZookeeperDistributedLock.lock();
         long offset = getOffset();
         if (offset + gap < ShuffleRandomPathGenerator.MAX_OFFSET) {
             byte[] increasedOffsetData = Long.toString(offset + gap).getBytes();
@@ -62,6 +64,7 @@ public class ZookeeperService {
         } else {
             zooKeeperManager.update(OFFSET_PATH, Long.toString(0).getBytes());
         }
+        ZooKeeperManagerImpl.ZookeeperDistributedLock.unlock(lockNode);
         return offset;
     }
 
