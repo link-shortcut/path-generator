@@ -23,6 +23,5 @@ public class ShufflePathInitializationHelper {
         int gap = pathGenerator.getGap();
         long offset = zookeeperService.increaseOffsetWithRetry(gap);
         pathGenerator.initialize(offset);
-        log.info("Shuffle path generator is initialized");
     }
 }

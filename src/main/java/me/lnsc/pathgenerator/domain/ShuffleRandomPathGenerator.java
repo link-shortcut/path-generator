@@ -1,6 +1,8 @@
 package me.lnsc.pathgenerator.domain;
 
 import me.lnsc.pathgenerator.domain.exception.PathExhaustionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +10,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ShuffleRandomPathGenerator implements PathGenerator {
+    private static final Logger log = LoggerFactory.getLogger(ShuffleRandomPathGenerator.class);
+
     private static final int PATH_LENGTH = 7;
     private static final List<Character> AVAILABLE_CHARACTERS = initializeAvailableCharacters();
     public static final long MAX_OFFSET = (long) Math.pow((long) AVAILABLE_CHARACTERS.size(), (long) PATH_LENGTH);
@@ -27,6 +31,7 @@ public class ShuffleRandomPathGenerator implements PathGenerator {
 
     public void initialize(long offset) {
         this.randomShortenPaths = shufflePathInitializer.initializeShuffledQueue(offset, gap);
+        log.info("Initialize shuffled queue with offset={}, gap={}", offset, gap);
     }
 
     @Override
@@ -35,6 +40,7 @@ public class ShuffleRandomPathGenerator implements PathGenerator {
         if (randomPath == null) {
             throw new PathExhaustionException();
         }
+        log.debug("Generate shorten path = {}", randomPath);
         return randomPath;
     }
 
